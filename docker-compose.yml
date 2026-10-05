@@ -1,0 +1,55 @@
+# Local development stack.
+#   docker compose up -d                 -> PostgreSQL + Redis only (run the API with mvn / your IDE)
+#   docker compose --profile full up -d  -> also builds & runs the API in a container
+name: aquaflow
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: aquaflow-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-aquaflow}
+      POSTGRES_USER: ${DB_USERNAME:-aquaflow}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-aquaflow}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-aquaflow} -d ${DB_NAME:-aquaflow}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: aquaflow-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
+  api:
+    profiles: ["full"]
+    build:
+      context: ./backend
+      dockerfile: docker/Dockerfile   # the legacy compose used "build: ." which has no Dockerfile
+    container_name: aquaflow-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-aquaflow}
+      DB_USERNAME: ${DB_USERNAME:-aquaflow}
+      DB_PASSWORD: ${DB_PASSWORD:-aquaflow}
+      REDIS_HOST: redis
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env (openssl rand -base64 48)}
+
+volumes:
+  postgres_data:
+  redis_data:
