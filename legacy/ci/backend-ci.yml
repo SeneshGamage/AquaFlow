@@ -1,0 +1,66 @@
+# CI — Test & Build
+# Status badge: ![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg)
+
+name: "CI — Test & Build"
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: aquaflow_test
+          POSTGRES_USER: aquaflow
+          POSTGRES_PASSWORD: aquaflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aquaflow"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Run tests
+        run: mvn verify
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/aquaflow_test
+          DB_USERNAME: aquaflow
+          DB_PASSWORD: aquaflow
+          REDIS_HOST: localhost
+          JWT_SECRET: test-secret-key-for-ci
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports
+
+      - name: Upload JaCoCo coverage (if present)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco
