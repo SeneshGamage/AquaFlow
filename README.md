@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# AquaFlow
-Pet Fish market platform
-=======
 # 🐠 AquaFlow
 
 A full-stack platform for the **pet & ornamental fish market** — it connects fish breeders/suppliers,
@@ -55,7 +51,7 @@ npm install && npm run dev           # UI   -> http://localhost:3000
 ```
 
 ## Docs
-- [Roadmap](docs/ROADMAP.md) · [Architecture](docs/ARCHITECTURE.md) · [Decisions](docs/DECISIONS.md) · [Day 1 checklist](docs/DAY-01.md)
+- [Roadmap](docs/ROADMAP.md) · [Architecture](docs/ARCHITECTURE.md) · [Decisions](docs/DECISIONS.md) ·
 
 ## Credits & license
 MIT — see [LICENSE](LICENSE). Image credits in [CREDITS.md](CREDITS.md).
