@@ -113,6 +113,13 @@
       <artifactId>postgresql</artifactId>
       <scope>test</scope>
     </dependency>
+<<<<<<< HEAD
+=======
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+>>>>>>> feat/admin-role
   </dependencies>
 
   <build>

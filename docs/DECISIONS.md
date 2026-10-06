@@ -6,3 +6,7 @@
 4. **Flyway** replaces `ddl-auto: update` before first deployment.
 5. **LLM behind an interface**, server-side only, read-only tools, rate-limited.
 6. **Media as MP4/WebM** with poster fallback; credits tracked in `CREDITS.md`.
+<<<<<<< HEAD
+=======
+7. **Free tiers only.** Re-check limits before relying on them — they change often.
+>>>>>>> feat/admin-role

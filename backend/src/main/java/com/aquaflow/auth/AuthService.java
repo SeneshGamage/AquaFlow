@@ -6,6 +6,11 @@ import com.aquaflow.auth.dto.RegisterRequest;
 import com.aquaflow.user.User;
 import com.aquaflow.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+<<<<<<< HEAD
+=======
+import java.util.Set;
+import com.aquaflow.user.Role;
+>>>>>>> feat/admin-role
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,12 +29,32 @@ public class AuthService implements UserDetailsService {
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
   private final AuthenticationManager authenticationManager;
+<<<<<<< HEAD
 
   public AuthResponse register(RegisterRequest request) {
     if (userRepository.existsByEmail(request.getEmail())) {
       throw new RuntimeException("Duplicate email: already registered");
     }
 
+=======
+  private static final Set<Role> SELF_REGISTRATION_ROLES = Set.of(Role.BUYER, Role.SUPPLIER);
+
+  public AuthResponse register(RegisterRequest request) {
+    // Ensure only allowed roles can self-register
+    if (!SELF_REGISTRATION_ROLES.contains(request.getRole())) {
+      log.warn("Attempted self-registration with disallowed role: {}", request.getRole());
+      throw new IllegalArgumentException(
+          "Role not allowed for self-registration: " + request.getRole());
+    }
+  
+    // Check for duplicate email
+    if (userRepository.existsByEmail(request.getEmail())) {
+      log.warn("Attempted registration with duplicate email: {}", request.getEmail());
+      throw new IllegalArgumentException("Email is already registered: " + request.getEmail());
+    }
+  
+    // Build and save the user
+>>>>>>> feat/admin-role
     User user =
         User.builder()
             .name(request.getName())
@@ -38,12 +63,22 @@ public class AuthService implements UserDetailsService {
             .role(request.getRole())
             .enabled(true)
             .build();
+<<<<<<< HEAD
 
     User saved = userRepository.save(user);
     String token = jwtUtil.generateToken(saved);
 
     log.info("User registered: {}", saved.getEmail());
 
+=======
+  
+    User saved = userRepository.save(user);
+    String token = jwtUtil.generateToken(saved);
+  
+    log.info("User successfully registered: {}", saved.getEmail());
+  
+    // Return the response
+>>>>>>> feat/admin-role
     return AuthResponse.builder()
         .token(token)
         .email(saved.getEmail())
