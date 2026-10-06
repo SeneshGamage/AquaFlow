@@ -6,11 +6,8 @@ import com.aquaflow.auth.dto.RegisterRequest;
 import com.aquaflow.user.User;
 import com.aquaflow.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-<<<<<<< HEAD
-=======
 import java.util.Set;
 import com.aquaflow.user.Role;
->>>>>>> feat/admin-role
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,14 +26,6 @@ public class AuthService implements UserDetailsService {
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
   private final AuthenticationManager authenticationManager;
-<<<<<<< HEAD
-
-  public AuthResponse register(RegisterRequest request) {
-    if (userRepository.existsByEmail(request.getEmail())) {
-      throw new RuntimeException("Duplicate email: already registered");
-    }
-
-=======
   private static final Set<Role> SELF_REGISTRATION_ROLES = Set.of(Role.BUYER, Role.SUPPLIER);
 
   public AuthResponse register(RegisterRequest request) {
@@ -54,7 +43,6 @@ public class AuthService implements UserDetailsService {
     }
   
     // Build and save the user
->>>>>>> feat/admin-role
     User user =
         User.builder()
             .name(request.getName())
@@ -63,14 +51,6 @@ public class AuthService implements UserDetailsService {
             .role(request.getRole())
             .enabled(true)
             .build();
-<<<<<<< HEAD
-
-    User saved = userRepository.save(user);
-    String token = jwtUtil.generateToken(saved);
-
-    log.info("User registered: {}", saved.getEmail());
-
-=======
   
     User saved = userRepository.save(user);
     String token = jwtUtil.generateToken(saved);
@@ -78,7 +58,6 @@ public class AuthService implements UserDetailsService {
     log.info("User successfully registered: {}", saved.getEmail());
   
     // Return the response
->>>>>>> feat/admin-role
     return AuthResponse.builder()
         .token(token)
         .email(saved.getEmail())

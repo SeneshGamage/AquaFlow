@@ -14,11 +14,8 @@ import com.aquaflow.user.UserRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-<<<<<<< HEAD
-=======
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
->>>>>>> feat/admin-role
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -109,8 +106,6 @@ class AuthServiceTest {
     assertThrows(
         UsernameNotFoundException.class, () -> authService.loadUserByUsername("missing@example.com"));
   }
-<<<<<<< HEAD
-=======
 
   @ParameterizedTest
   @EnumSource(value = Role.class, names = {"OWNER", "ADMIN"})
@@ -119,5 +114,4 @@ class AuthServiceTest {
     assertThrows(IllegalArgumentException.class, () -> authService.register(req));
     verify(userRepository, never()).save(any());
 }
->>>>>>> feat/admin-role
 }
