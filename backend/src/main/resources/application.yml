@@ -17,9 +17,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-    flyway:
-       enabled: true
-       locations: classpath:db/migration
+    
 
   data:
     redis:
