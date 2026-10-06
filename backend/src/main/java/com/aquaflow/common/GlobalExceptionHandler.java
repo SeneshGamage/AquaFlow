@@ -28,6 +28,12 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error("Access denied"));
   }
 
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ApiResponse<?>> handleIllegalArgument(IllegalArgumentException ex) {
+    log.warn("Bad request: {}", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ex.getMessage()));
+  }
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ApiResponse<?>> handleValidation(MethodArgumentNotValidException ex) {
     String message =
