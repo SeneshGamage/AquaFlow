@@ -1,7 +1,8 @@
 package com.aquaflow.user;
 
 public enum Role {
-  OWNER("Has full access to everything"),
+  ADMIN("Manages users, approvals and platform settings"),
+  OWNER("Runs the business: inventory, orders, shipments, dashboard"),
   SUPPLIER("Can submit stock, confirm purchase orders"),
   BUYER("Can place orders, track shipments");
 
