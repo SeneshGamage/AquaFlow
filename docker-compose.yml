@@ -37,7 +37,7 @@ services:
       dockerfile: docker/Dockerfile   # the legacy compose used "build: ." which has no Dockerfile
     container_name: aquaflow-api
     ports:
-      - "8080:8080"
+      - "5433:5432"
     depends_on:
       postgres:
         condition: service_healthy
