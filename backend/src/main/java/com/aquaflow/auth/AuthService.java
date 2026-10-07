@@ -3,11 +3,11 @@ package com.aquaflow.auth;
 import com.aquaflow.auth.dto.AuthResponse;
 import com.aquaflow.auth.dto.LoginRequest;
 import com.aquaflow.auth.dto.RegisterRequest;
+import com.aquaflow.user.Role;
 import com.aquaflow.user.User;
 import com.aquaflow.user.UserRepository;
-import lombok.RequiredArgsConstructor;
 import java.util.Set;
-import com.aquaflow.user.Role;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,27 +22,28 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService implements UserDetailsService {
 
+  /** Roles anyone may sign up as. OWNER and ADMIN are created by the system, never by self-registration. */
+  private static final Set<Role> SELF_REGISTRATION_ROLES = Set.of(Role.BUYER, Role.SUPPLIER);
+
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
   private final AuthenticationManager authenticationManager;
-  private static final Set<Role> SELF_REGISTRATION_ROLES = Set.of(Role.BUYER, Role.SUPPLIER);
 
   public AuthResponse register(RegisterRequest request) {
-    // Ensure only allowed roles can self-register
+    // Only allowed roles can self-register (-> 400 via IllegalArgumentException handler)
     if (!SELF_REGISTRATION_ROLES.contains(request.getRole())) {
       log.warn("Attempted self-registration with disallowed role: {}", request.getRole());
       throw new IllegalArgumentException(
           "Role not allowed for self-registration: " + request.getRole());
     }
-  
-    // Check for duplicate email
+
+    // Duplicate email (-> 409: GlobalExceptionHandler maps messages starting with "Duplicate")
     if (userRepository.existsByEmail(request.getEmail())) {
       log.warn("Attempted registration with duplicate email: {}", request.getEmail());
-      throw new IllegalArgumentException("Email is already registered: " + request.getEmail());
+      throw new RuntimeException("Duplicate email: already registered");
     }
-  
-    // Build and save the user
+
     User user =
         User.builder()
             .name(request.getName())
@@ -51,13 +52,12 @@ public class AuthService implements UserDetailsService {
             .role(request.getRole())
             .enabled(true)
             .build();
-  
+
     User saved = userRepository.save(user);
     String token = jwtUtil.generateToken(saved);
-  
+
     log.info("User successfully registered: {}", saved.getEmail());
-  
-    // Return the response
+
     return AuthResponse.builder()
         .token(token)
         .email(saved.getEmail())
@@ -74,7 +74,8 @@ public class AuthService implements UserDetailsService {
     User user =
         userRepository
             .findByEmail(request.getEmail())
-            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + request.getEmail()));
+            .orElseThrow(
+                () -> new UsernameNotFoundException("User not found: " + request.getEmail()));
 
     String token = jwtUtil.generateToken(user);
 
