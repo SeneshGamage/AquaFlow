@@ -51,7 +51,15 @@ npm install && npm run dev           # UI   -> http://localhost:3000
 ```
 
 ## Docs
+<<<<<<< HEAD
+- [Roadmap](docs/ROADMAP.md) · [Architecture](docs/ARCHITECTURE.md) · [Decisions](docs/DECISIONS.md) ·
+
+## Credits & license
+MIT — see [LICENSE](LICENSE). Image credits in [CREDITS.md](CREDITS.md).
+>>>>>>> 8a73092 (docs: add README, roadmap, architecture and decisions)
+=======
 - [Roadmap](docs/ROADMAP.md) · [Architecture](docs/ARCHITECTURE.md) · [Decisions](docs/DECISIONS.md) · [Day 1 checklist](docs/DAY-01.md)
 
 ## Credits & license
 MIT — see [LICENSE](LICENSE). Image credits in [CREDITS.md](CREDITS.md).
+>>>>>>> feat/admin-role

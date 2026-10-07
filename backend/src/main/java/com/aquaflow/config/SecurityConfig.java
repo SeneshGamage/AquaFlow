@@ -52,16 +52,16 @@ public class SecurityConfig {
     return http.build();
   }
 
-  @Value("${app.cors.allowed-origins:http://localhost:3000}")
-  private List<String> allowedOrigins;
+@Value("${app.cors.allowed-origins:http://localhost:3000}")
+private List<String> allowedOrigins;
 
-  @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(allowedOrigins);
-    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-    config.setAllowCredentials(false);
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+  CorsConfiguration config = new CorsConfiguration();
+  config.setAllowedOrigins(allowedOrigins);
+  config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+  config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+  config.setAllowCredentials(false);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", config);
@@ -86,5 +86,4 @@ public class SecurityConfig {
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
-  
 }
