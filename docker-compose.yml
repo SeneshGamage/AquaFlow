@@ -12,7 +12,9 @@ services:
       POSTGRES_USER: ${DB_USERNAME:-aquaflow}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-aquaflow}
     ports:
-      - "5432:5432"
+      # Host port is configurable: set DB_PORT=5433 in .env if a local PostgreSQL already uses 5432.
+      # (The container side stays 5432; other containers always reach it as postgres:5432.)
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -37,7 +39,7 @@ services:
       dockerfile: docker/Dockerfile   # the legacy compose used "build: ." which has no Dockerfile
     container_name: aquaflow-api
     ports:
-      - "5433:5432"
+      - "8080:8080"                   # the API listens on 8080 (was wrongly "5433:5432")
     depends_on:
       postgres:
         condition: service_healthy
@@ -49,8 +51,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-aquaflow}
       REDIS_HOST: redis
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env (openssl rand -base64 48)}
-      ADMIN_EMAIL: ${ADMIN_EMAIL}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
 
 volumes:
   postgres_data:
