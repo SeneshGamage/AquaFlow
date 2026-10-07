@@ -3,6 +3,7 @@ package com.aquaflow.config;
 import com.aquaflow.auth.JwtAuthFilter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -30,6 +30,10 @@ public class SecurityConfig {
 
   private final JwtAuthFilter jwtAuthFilter;
   private final UserDetailsService userDetailsService;
+
+  /** Browser origins allowed to call the API (comma-separated in CORS_ALLOWED_ORIGINS). */
+  @Value("${app.cors.allowed-origins:http://localhost:3000}")
+  private List<String> allowedOrigins;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -42,7 +46,9 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/fish/**")
                     .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/api-docs/**", "/actuator/**")
+                    // Only the health check is public; /actuator/prometheus etc. now need a login.
+                    .requestMatchers(
+                        HttpMethod.GET, "/swagger-ui/**", "/api-docs/**", "/actuator/health")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
@@ -52,16 +58,13 @@ public class SecurityConfig {
     return http.build();
   }
 
-@Value("${app.cors.allowed-origins:http://localhost:3000}")
-private List<String> allowedOrigins;
-
-@Bean
-public CorsConfigurationSource corsConfigurationSource() {
-  CorsConfiguration config = new CorsConfiguration();
-  config.setAllowedOrigins(allowedOrigins);
-  config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-  config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-  config.setAllowCredentials(false);
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(allowedOrigins);
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+    config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+    config.setAllowCredentials(false); // the JWT travels in a header, not a cookie, to the API
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", config);
