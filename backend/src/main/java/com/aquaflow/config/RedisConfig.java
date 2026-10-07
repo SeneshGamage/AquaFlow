@@ -23,7 +23,8 @@ public class RedisConfig {
 
   @Autowired private RedisConnectionFactory redisConnectionFactory;
 
-  @Bean
+  @SuppressWarnings("removal")
+@Bean
   public RedisTemplate<String, Object> redisTemplate() {
     RedisTemplate<String, Object> template = new RedisTemplate<>();
 
@@ -48,7 +49,8 @@ public class RedisConfig {
     return template;
   }
 
-  @Bean
+  @SuppressWarnings("removal")
+@Bean
   public CacheManager cacheManager() {
     StringRedisSerializer keySerializer = new StringRedisSerializer();
     Jackson2JsonRedisSerializer<Object> valueSerializer =
