@@ -1,9 +1,13 @@
 package com.aquaflow.auth;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.aquaflow.auth.dto.AuthResponse;
 import com.aquaflow.auth.dto.LoginRequest;
@@ -22,7 +26,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
@@ -73,6 +76,17 @@ class AuthServiceTest {
     assertTrue(ex.getMessage().contains("Duplicate"));
   }
 
+  @ParameterizedTest
+  @EnumSource(
+      value = Role.class,
+      names = {"OWNER", "ADMIN"})
+  void register_rejectsPrivilegedRoles(Role role) {
+    RegisterRequest req = new RegisterRequest("Evil", "evil@example.com", "password", role);
+
+    assertThrows(IllegalArgumentException.class, () -> authService.register(req));
+    verify(userRepository, never()).save(any());
+  }
+
   @Test
   void login_success() {
     LoginRequest req = new LoginRequest("test@example.com", "password");
@@ -95,23 +109,11 @@ class AuthServiceTest {
     when(jwtUtil.generateToken(any(User.class))).thenReturn("test-token");
 
     AuthResponse res = authService.login(req);
+
     assertEquals("test-token", res.getToken());
     assertEquals("Login successful", res.getMessage());
   }
 
-  @Test
-  void loadUserByUsername_notFound() {
-    when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-
-    assertThrows(
-        UsernameNotFoundException.class, () -> authService.loadUserByUsername("missing@example.com"));
-  }
-
-  @ParameterizedTest
-  @EnumSource(value = Role.class, names = {"OWNER", "ADMIN"})
-  void register_rejectsPrivilegedRoles(Role role) {
-    RegisterRequest req = new RegisterRequest("Evil", "evil@example.com", "password", role);
-    assertThrows(IllegalArgumentException.class, () -> authService.register(req));
-    verify(userRepository, never()).save(any());
-}
+  // loadUserByUsername tests now live in AppUserDetailsServiceTest
+  // (that method moved to AppUserDetailsService).
 }
