@@ -4,6 +4,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { decodeJwt, NAME_COOKIE, SESSION_COOKIE } from "@/lib/jwt";
 import type { Role } from "@/lib/types";
+import { apiFetch, ApiError } from "@/lib/api";
+
 
 export interface Session {
   email: string;
@@ -11,17 +13,17 @@ export interface Session {
   role: Role;
 }
 
-/** Current user from the cookie, or null. `cache` = computed once per request. */
+/** Current user, verified by the backend (never trusts the cookie's contents). */
 export const getSession = cache(async (): Promise<Session | null> => {
   const store = await cookies();
-  const token = store.get(SESSION_COOKIE)?.value;
-  const claims = token ? decodeJwt(token) : null;
-  if (!claims) return null;
-  return {
-    email: claims.email,
-    role: claims.role,
-    name: store.get(NAME_COOKIE)?.value ?? claims.email,
-  };
+  if (!store.get(SESSION_COOKIE)?.value) return null;
+  try {
+    const me = await apiFetch<{ email: string; name: string; role: Role }>("/api/auth/me");
+    return { email: me.email, name: me.name, role: me.role };
+  } catch (e) {
+    if (e instanceof ApiError && (e.status === 401 || e.status === 403)) return null; // invalid / expired
+    throw e; // backend down etc.: show the error page instead of pretending to be logged out
+  }
 });
 
 /** Use at the top of every protected page/action: redirects instead of rendering. */
