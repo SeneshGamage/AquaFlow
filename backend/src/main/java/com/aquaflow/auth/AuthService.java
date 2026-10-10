@@ -38,6 +38,11 @@ public class AuthService {
             "Role not allowed for self-registration: " + request.getRole());
     }
 
+    if (userRepository.existsByEmail(request.getEmail())) {
+      log.warn("Attempted registration with duplicate email: {}", request.getEmail());
+      throw new RuntimeException("Duplicate email: already registered"); // -> 409
+    }
+
     // Create a new user object
     User user = User.builder()
         .name(request.getName())
