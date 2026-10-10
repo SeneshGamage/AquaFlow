@@ -2,7 +2,6 @@ package com.aquaflow.config;
 
 import com.aquaflow.auth.JwtAuthFilter;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,18 +24,18 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
-
-  private final JwtAuthFilter jwtAuthFilter;
-  private final UserDetailsService userDetailsService;
 
   /** Browser origins allowed to call the API (comma-separated in CORS_ALLOWED_ORIGINS). */
   @Value("${app.cors.allowed-origins:http://localhost:3000}")
   private List<String> allowedOrigins;
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(
+      HttpSecurity http,
+      JwtAuthFilter jwtAuthFilter,
+      AuthenticationProvider authenticationProvider)
+      throws Exception {
     http.csrf(csrf -> csrf.disable())
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -46,13 +45,13 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/fish/**")
                     .permitAll()
-                    // Only the health check is public; /actuator/prometheus etc. now need a login.
+                    // Only the health check is public; /actuator/prometheus etc. need a login.
                     .requestMatchers(
                         HttpMethod.GET, "/swagger-ui/**", "/api-docs/**", "/actuator/health")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
-        .authenticationProvider(authenticationProvider())
+        .authenticationProvider(authenticationProvider)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
@@ -64,7 +63,7 @@ public class SecurityConfig {
     config.setAllowedOrigins(allowedOrigins);
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-    config.setAllowCredentials(false); // the JWT travels in a header, not a cookie, to the API
+    config.setAllowCredentials(false); // the JWT travels in a header, not a cookie
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", config);
@@ -72,7 +71,7 @@ public class SecurityConfig {
   }
 
   @Bean
-  public AuthenticationProvider authenticationProvider() {
+  public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
     DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
     provider.setUserDetailsService(userDetailsService);
     provider.setPasswordEncoder(passwordEncoder());
