@@ -37,7 +37,7 @@ export default function RegisterPage() {
               {state.error}
             </p>
           )}
-          <Field label="Name" name="name" type="text" autoComplete="name" required />
+          <Field label="Name" name="name" type="text" autoComplete="name" required defaultValue={state?.values?.name} />
           <Field label="Email" name="email" type="email" autoComplete="email" required defaultValue={state?.values?.email} />
           <Field label="Password" name="password" type="password" autoComplete="new-password" required />
           <fieldset className="grid grid-cols-2 gap-3">

@@ -23,6 +23,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -114,6 +115,18 @@ class AuthServiceTest {
     assertEquals("Login successful", res.getMessage());
   }
 
+  @Test
+  void register_concurrentDuplicate_returnsConflict() {
+    RegisterRequest req = new RegisterRequest("Test User", "race@example.com", "password", Role.BUYER);
+    when(userRepository.existsByEmail(req.getEmail())).thenReturn(false, true);
+    when(passwordEncoder.encode(any())).thenReturn("encoded");
+    when(userRepository.save(any(User.class))).thenThrow(new DataIntegrityViolationException("unique"));
+
+    RuntimeException ex = assertThrows(RuntimeException.class, () -> authService.register(req));
+    assertTrue(ex.getMessage().startsWith("Duplicate"));
+}
+
   // loadUserByUsername tests now live in AppUserDetailsServiceTest
   // (that method moved to AppUserDetailsService).
+  // The AuthServiceTest focuses on registration and login logic, while user loading is tested separately.
 }
