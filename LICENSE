@@ -1,14 +1,7 @@
 MIT License
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 Copyright (c) 2026 SeneshGamage
-=======
-Copyright (c) 2026 Senesh Gamage
->>>>>>> 16440ce (chore: add gitignore, gitattributes and MIT license)
-=======
-Copyright (c) 2026 Senesh Gamage
->>>>>>> feat/admin-role
+
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
