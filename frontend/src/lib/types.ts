@@ -16,3 +16,25 @@ export interface AuthData {
   role: Role;
   message: string;
 }
+
+/** Matches the backend's FishResponse */
+export interface Fish {
+  id: number;
+  commonName: string;
+  scientificName: string | null;
+  originCountry: string;
+  description: string | null;
+  quantityInStock: number;
+  pricePerUnit: number;
+  imageUrl: string | null;
+  active: boolean;
+}
+
+/** Matches the backend's OrderResponse (fields we use so far) */
+export interface OrderResult {
+  id: number;
+  fishName: string;
+  quantity: number;
+  totalPrice: number;
+  status: string;
+}
