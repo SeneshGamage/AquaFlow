@@ -34,7 +34,7 @@ public class OrderService {
             .orElseThrow(() -> new EntityNotFoundException("Fish not found: " + request.getFishId()));
 
     if (fish.getQuantityInStock() == null || fish.getQuantityInStock() < request.getQuantity()) {
-      throw new RuntimeException("Insufficient stock for fish: " + fish.getCommonName());
+      throw new IllegalArgumentException("Insufficient stock for fish: " + fish.getCommonName()); 
     }
 
     BigDecimal totalPrice =
@@ -100,7 +100,7 @@ public class OrderService {
       Fish fish = order.getFish();
       int remaining = fish.getQuantityInStock() - order.getQuantity();
       if (remaining < 0) {
-        throw new RuntimeException("Insufficient stock to confirm order: " + orderId);
+        throw new IllegalArgumentException("Insufficient stock to confirm order: " + orderId);  
       }
       fish.setQuantityInStock(remaining);
       fishRepository.save(fish);
