@@ -13,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class OrderService {
   private final FishRepository fishRepository;
   private final UserRepository userRepository;
 
+  @Transactional
   public OrderResponse placeOrder(OrderRequest request, String buyerEmail) {
     User buyer =
         userRepository
@@ -77,6 +81,7 @@ public class OrderService {
         .toList();
   }
 
+  @Transactional
   public OrderResponse updateOrderStatus(Long orderId, OrderStatus newStatus, String userEmail) {
     Order order =
         orderRepository
@@ -89,6 +94,8 @@ public class OrderService {
           "Invalid status transition: " + current + " -> " + newStatus);
     }
 
+    Long fishId = order.getFish().getId();
+
     // On confirmation, assign supplier (calling user) and reduce stock.
     if (newStatus == OrderStatus.CONFIRMED) {
       User supplier =
@@ -97,20 +104,16 @@ public class OrderService {
               .orElseThrow(() -> new EntityNotFoundException("Supplier not found: " + userEmail));
       order.setSupplier(supplier);
 
-      Fish fish = order.getFish();
-      int remaining = fish.getQuantityInStock() - order.getQuantity();
-      if (remaining < 0) {
-        throw new IllegalArgumentException("Insufficient stock to confirm order: " + orderId);  
-      }
-      fish.setQuantityInStock(remaining);
-      fishRepository.save(fish);
+    // One atomic UPDATE ... WHERE quantity_in_stock >= qty: two concurrent confirmations cannot both win.
+    if (fishRepository.decrementStock(fishId, order.getQuantity()) == 0) {
+      throw new IllegalArgumentException("Insufficient stock to confirm order: " + orderId);
+        }
+
     }
 
-    // On cancel, restore stock if it was already confirmed.
+    // On cancel, give the stock back if it was already confirmed.
     if (newStatus == OrderStatus.CANCELLED && current == OrderStatus.CONFIRMED) {
-      Fish fish = order.getFish();
-      fish.setQuantityInStock(fish.getQuantityInStock() + order.getQuantity());
-      fishRepository.save(fish);
+      fishRepository.incrementStock(fishId, order.getQuantity());
     }
 
     order.setStatus(newStatus);
