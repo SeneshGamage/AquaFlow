@@ -8,11 +8,13 @@ import { requireRole } from "@/lib/session";
 export default async function CatalogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+
+  searchParams: Promise<{ q?: string | string[] }>;
 }) {
   await requireRole("BUYER");
 
-  const { q = "" } = await searchParams;
+  const { q: rawQ } = await searchParams;
+  const q = (Array.isArray(rawQ) ? rawQ[0] : rawQ) ?? "";
   const query = q.trim().toLowerCase();
   const all = await getFish();
   const fish = query
