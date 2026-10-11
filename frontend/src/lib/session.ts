@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { decodeJwt, NAME_COOKIE, SESSION_COOKIE } from "@/lib/jwt";
+import { SESSION_COOKIE } from "@/lib/jwt";
 import type { Role } from "@/lib/types";
 import { apiFetch, ApiError } from "@/lib/api";
 
