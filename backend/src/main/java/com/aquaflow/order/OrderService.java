@@ -104,11 +104,10 @@ public class OrderService {
               .orElseThrow(() -> new EntityNotFoundException("Supplier not found: " + userEmail));
       order.setSupplier(supplier);
 
-    // One atomic UPDATE ... WHERE quantity_in_stock >= qty: two concurrent confirmations cannot both win.
-    if (fishRepository.decrementStock(fishId, order.getQuantity()) == 0) {
-      throw new IllegalArgumentException("Insufficient stock to confirm order: " + orderId);
-        }
-
+      // One atomic UPDATE ... WHERE quantity_in_stock >= qty: two concurrent confirmations cannot both win.
+      if (fishRepository.decrementStock(fishId, order.getQuantity()) == 0) {
+        throw new IllegalArgumentException("Insufficient stock to confirm order: " + orderId);
+      }
     }
 
     // On cancel, give the stock back if it was already confirmed.
