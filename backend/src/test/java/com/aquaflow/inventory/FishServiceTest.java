@@ -2,6 +2,7 @@ package com.aquaflow.inventory;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 import com.aquaflow.inventory.dto.FishRequest;
@@ -128,4 +129,11 @@ class FishServiceTest {
             argThat(
                 fish -> fish.getId().equals(1L) && fish.isActive() == false));
   }
+
+  @Test
+    void updateStock_negativeQuantity_throwsIllegalArgument() {
+    assertThrows(IllegalArgumentException.class, () -> fishService.updateStock(1L, -5));
+    verify(fishRepository, never()).save(any());
+}
+
 }

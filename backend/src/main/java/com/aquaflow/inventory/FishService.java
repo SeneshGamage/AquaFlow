@@ -71,6 +71,11 @@ public class FishService {
   }
 
   public FishResponse updateStock(Long id, Integer quantity) {
+    // Validate the quantity
+    if (quantity == null || quantity < 0) {
+      throw new IllegalArgumentException("Quantity must be 0 or more");   // -> 400
+    }
+
     Fish fish =
         fishRepository
             .findByIdAndActiveTrue(id)

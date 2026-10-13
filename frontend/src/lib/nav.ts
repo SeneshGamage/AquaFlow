@@ -8,7 +8,13 @@ export interface NavLink {
 /** Links shown in the navbar for each role. Add a link here when its page exists. */
 export const NAV_LINKS: Record<Role, NavLink[]> = {
   ADMIN: [{ href: "/admin/users", label: "Users" }],
-  OWNER: [{ href: "/owner/dashboard", label: "Dashboard" }],
+  OWNER: [
+    { href: "/owner/dashboard", label: "Dashboard" },
+    { href: "/owner/inventory", label: "Inventory" },
+  ],
   SUPPLIER: [{ href: "/supplier/orders", label: "Orders" }],
-  BUYER: [{ href: "/buyer/catalog", label: "Fish Catalog" }],
+  BUYER: [
+    { href: "/buyer/catalog", label: "Fish Catalog" },
+    { href: "/buyer/orders", label: "My Orders" },
+  ],
 };

@@ -74,9 +74,9 @@ public class OrderController {
   @PreAuthorize("hasAnyRole('OWNER','SUPPLIER')")
   @PatchMapping("/{id}/status")
   public ResponseEntity<ApiResponse<OrderResponse>> updateOrderStatus(
-      @PathVariable Long id, @RequestParam OrderStatus status) {
+      @PathVariable Long id, @RequestParam OrderStatus status, @RequestParam(required = false) String rejectionReason) {
     String email = SecurityContextHolder.getContext().getAuthentication().getName();
     return ResponseEntity.ok(
-        ApiResponse.success(orderService.updateOrderStatus(id, status, email), "Order updated"));
+        ApiResponse.success(orderService.updateOrderStatus(id, status, email, rejectionReason), "Order updated"));
   }
 }

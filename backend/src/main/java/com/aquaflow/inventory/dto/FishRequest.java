@@ -4,6 +4,8 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,5 +28,6 @@ public class FishRequest {
   @DecimalMin("0.01")
   private BigDecimal pricePerUnit;
 
+  @Pattern(regexp = "^$|^(/img/|https://).+", message = "must start with /img/ or https://")
   private String imageUrl;
 }

@@ -82,7 +82,7 @@ public class OrderService {
   }
 
   @Transactional
-  public OrderResponse updateOrderStatus(Long orderId, OrderStatus newStatus, String userEmail) {
+  public OrderResponse updateOrderStatus(Long orderId, OrderStatus newStatus, String userEmail, String rejectionReason) {
     Order order =
         orderRepository
             .findById(orderId)
@@ -113,6 +113,12 @@ public class OrderService {
     // On cancel, give the stock back if it was already confirmed.
     if (newStatus == OrderStatus.CANCELLED && current == OrderStatus.CONFIRMED) {
       fishRepository.incrementStock(fishId, order.getQuantity());
+
+      // Set the rejection reason if provided
+      if (rejectionReason != null && !rejectionReason.isBlank()) {
+        order.setRejectionReason(rejectionReason);
+    }
+
     }
 
     order.setStatus(newStatus);

@@ -1,5 +1,36 @@
 export type Role = "ADMIN" | "OWNER" | "SUPPLIER" | "BUYER";
 
+export type OrderStatus = "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+
+/** Matches the backend's OrderResponse */
+export interface Order {
+  id: number;
+  buyerId: number;
+  buyerName: string;
+  supplierId: number | null;
+  supplierName: string | null;
+  fishId: number;
+  fishName: string;
+  quantity: number;
+  totalPrice: number;
+  status: OrderStatus;
+  notes: string | null;
+  rejectionReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Matches GET /api/dashboard/summary */
+export interface DashboardSummary {
+  totalOrders: number;
+  pendingOrders: number;
+  activeShipments: number;
+  totalFishSpecies: number;
+  totalSuppliers: number;
+  totalBuyers: number;
+  lowStockFish: { id: number; commonName: string; quantityInStock: number }[];
+}
+
 /** Matches the backend's ApiResponse<T> */
 export interface ApiResponse<T> {
   success: boolean;
