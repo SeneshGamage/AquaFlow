@@ -59,7 +59,7 @@ class OrderServiceTest {
     when(fishRepository.decrementStock(5L, 3)).thenReturn(0);
   
     assertThrows(IllegalArgumentException.class,
-        () -> orderService.updateOrderStatus(7L, OrderStatus.CONFIRMED, "sup@x.com"));
+        () -> orderService.updateOrderStatus(7L, OrderStatus.CONFIRMED, "sup@x.com", null));
     verify(orderRepository, never()).save(any());
   }
   
@@ -71,7 +71,7 @@ class OrderServiceTest {
     when(fishRepository.decrementStock(5L, 3)).thenReturn(1);
     when(orderRepository.save(any(Order.class))).thenAnswer(inv -> inv.getArgument(0));
   
-    OrderResponse res = orderService.updateOrderStatus(7L, OrderStatus.CONFIRMED, "sup@x.com");
+    OrderResponse res = orderService.updateOrderStatus(7L, OrderStatus.CONFIRMED, "sup@x.com", null);
   
     assertEquals("CONFIRMED", res.getStatus());
     assertEquals(2L, res.getSupplierId());
