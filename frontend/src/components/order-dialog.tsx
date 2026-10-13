@@ -71,6 +71,9 @@ export function OrderDialog({ fish }: { fish: Fish }) {
 
           <p className="text-sm font-semibold text-ocean-900">
             Total: {formatPrice(fish.pricePerUnit * (quantity || 0))}
+            <p className="text-xs text-ocean-500">
+              Your order is a request: stock is reserved when the supplier confirms it.
+            </p>
           </p>
 
           {state?.error && (

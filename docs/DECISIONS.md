@@ -6,7 +6,5 @@
 4. **Flyway** replaces `ddl-auto: update` before first deployment.
 5. **LLM behind an interface**, server-side only, read-only tools, rate-limited.
 6. **Media as MP4/WebM** with poster fallback; credits tracked in `CREDITS.md`.
-<<<<<<< HEAD
-=======
-7. **Free tiers only.** Re-check limits before relying on them — they change often.
->>>>>>> feat/admin-role
+7. **Orders are requests.** Placing an order checks stock but does not reserve it. Stock is deducted atomically when a supplier confirms (and restored if a confirmed order is cancelled); a confirmation can fail with "Insufficient stock".
+8. **Demo data is opt-in.** The demo catalog lives in `db/demo` and loads only with `SPRING_PROFILES_ACTIVE=demo`; normal migrations contain schema only.

@@ -46,6 +46,37 @@ class OrderServiceTest {
         .build();
   }
 
+  private Order pendingOrder(int qty) {
+    return Order.builder().id(7L).buyer(buyer).fish(fish(20)).quantity(qty)
+        .totalPrice(new BigDecimal("30.00")).status(OrderStatus.PENDING).build();
+  }
+  
+  @Test
+  void confirm_insufficientStock_throwsAndDoesNotSave() {
+    User supplier = User.builder().id(2L).name("Sup").email("sup@x.com").role(Role.SUPPLIER).enabled(true).build();
+    when(orderRepository.findById(7L)).thenReturn(Optional.of(pendingOrder(3)));
+    when(userRepository.findByEmail("sup@x.com")).thenReturn(Optional.of(supplier));
+    when(fishRepository.decrementStock(5L, 3)).thenReturn(0);
+  
+    assertThrows(IllegalArgumentException.class,
+        () -> orderService.updateOrderStatus(7L, OrderStatus.CONFIRMED, "sup@x.com"));
+    verify(orderRepository, never()).save(any());
+  }
+  
+  @Test
+  void confirm_success_marksConfirmedAndAssignsSupplier() {
+    User supplier = User.builder().id(2L).name("Sup").email("sup@x.com").role(Role.SUPPLIER).enabled(true).build();
+    when(orderRepository.findById(7L)).thenReturn(Optional.of(pendingOrder(3)));
+    when(userRepository.findByEmail("sup@x.com")).thenReturn(Optional.of(supplier));
+    when(fishRepository.decrementStock(5L, 3)).thenReturn(1);
+    when(orderRepository.save(any(Order.class))).thenAnswer(inv -> inv.getArgument(0));
+  
+    OrderResponse res = orderService.updateOrderStatus(7L, OrderStatus.CONFIRMED, "sup@x.com");
+  
+    assertEquals("CONFIRMED", res.getStatus());
+    assertEquals(2L, res.getSupplierId());
+  }
+
   @Test
   void placeOrder_success_calculatesTotalAndIsPending() {
     when(userRepository.findByEmail("shop@x.com")).thenReturn(Optional.of(buyer));

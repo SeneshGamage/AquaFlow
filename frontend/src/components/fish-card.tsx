@@ -12,6 +12,7 @@ export function FishCard({ fish }: { fish: Fish }) {
         {fish.imageUrl ? (
           <Image
             src={fish.imageUrl}
+            unoptimized={!fish.imageUrl.startsWith("/")}
             alt={fish.commonName}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
